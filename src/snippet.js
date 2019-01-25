@@ -9,6 +9,8 @@ Panels.add({
   'httpRequestReplace': '.<<type>>',
   'httpRequestCompleted': false,
   'prismHighlight': true,
-  'language': 'markup',
+  'language': '<<type>>',
   'keyCombo': 'ctrl+shift+z'
 });
+
+PrismLanguages.add({'<<type>>': '<<type>>'});
