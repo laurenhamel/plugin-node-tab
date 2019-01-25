@@ -11,56 +11,59 @@ const path = require('path');
  */
 function findTab(patternlab, pattern) {
 
-  //read the filetypes from the configuration
-  const fileTypes = patternlab.config.plugins['plugin-node-tab'].options.tabsToAdd;
+  // Read the file types from the configuration.
+  const fileTypes = patternlab.config.plugins['plugin-node-tab'].options.tabsToAdd.map((fileType) => fileType.toLowerCase());
 
-  //exit if either of these two parameters are missing
-  if (!patternlab) {
-    console.error('plugin-node-tab: patternlab object not provided to findTab');
+  // Initialize a helper for cleaner console logging.
+  const log = (type, ...messages) => console[type]('plugin-node-tab:', ...messages);
+
+  // Exit if either of these two parameters are missing.
+  if( !patternlab || !pattern ) {
+
+    // Report error.
+    log('error', !patternlab ? 'patternlab' : 'pattern', 'object not provided to findTab');
+
+    // Exit.
     process.exit(1);
+
   }
 
-  if (!pattern) {
-    console.error('plugin-node-tab: pattern object not provided to findTab');
-    process.exit(1);
-  }
+  // Get the pattern extension.
+  const patternExt = patternlab.config.patternExtension;
 
-  //derive the custom filetype paths from the pattern relPath
-  var customFileTypePath = path.join(patternlab.config.paths.source.patterns, pattern.relPath);
+  // Derive the custom file type paths from the pattern's path.
+  let customFileTypePath = path.join(patternlab.config.paths.source.patterns, pattern.relPath).replace(new RegExp('\\.' + patternExt + '$'), '');
 
-  //loop through all configured types
-  for (let i = 0; i < fileTypes.length; i++) {
-    const fileType = fileTypes[i].toLowerCase();
+  // Loop through all configured types.
+  fileTypes.forEach((fileType) => {
 
-    customFileTypePath = customFileTypePath.substr(0, customFileTypePath.lastIndexOf(".")) + '.' + fileType;
-    var customFileTypeOutputPath = patternlab.config.paths.public.patterns + pattern.getPatternLink(patternlab, 'custom', '.' + fileType);
+    let tabFileName = path.resolve(`${customFileTypePath}.${fileType}`);
+    let tabFileNameOutput = path.resolve(patternlab.config.paths.public.patterns, pattern.getPatternLink(patternlab, 'custom', `.${fileType}`));
 
-    //look for a custom filetype for this template
-    try {
-      var tabFileName = path.resolve(customFileTypePath);
-      try {
-        var tabFileNameStats = fs.statSync(tabFileName);
-      } catch (err) {
-        //not a file - move on quietly
-      }
-      if (tabFileNameStats && tabFileNameStats.isFile()) {
-        if (patternlab.config.debug) {
-          console.log('plugin-node-tab: copied pattern-specific custom file for ' + pattern.patternPartial);
-        }
+    // Look for a custom file type for this template.
+    if( fs.existsSync(tabFileName) && fs.statSync(tabFileName).isFile() ) {
 
-        //copy the file to our output target if found
-        fs.copySync(tabFileName, customFileTypeOutputPath);
-      } else {
+      // Debug.
+      if( patternlab.config.debug ) log('log', `copied pattern-specific ${fileType} file for ${pattern.patternPartial}`);
 
-        //otherwise write nothing to the same location - this prevents GET errors on the tab.
-        fs.outputFileSync(customFileTypeOutputPath, '');
-      }
+      // Copy the file to our output target if found.
+      fs.copySync(tabFileName, tabFileNameOutput, {overwrite: true});
+
     }
-    catch (err) {
-      console.log('plugin-node-tab:There was an error parsing sibling JSON for ' + pattern.relPath);
-      console.log(err);
+
+    // Otherwise, use an empty file instead to prevent errors.
+    else {
+
+      // Debug
+      if( patternlab.config.debug ) log('log', `empty ${fileType} file for ${pattern.patternPartial} to prevent \'GET\' error`);
+
+      // Write the empty file.
+      fs.outputFileSync(tabFileNameOutput, '');
+
     }
-  }
+
+  });
+
 }
 
 module.exports = findTab;
