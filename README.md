@@ -1,8 +1,6 @@
-![license](https://img.shields.io/github/license/pattern-lab/plugin-node-tab.svg)
-[![npm](https://img.shields.io/npm/v/plugin-node-tab.svg)](https://www.npmjs.com/package/plugin-node-tab)
-[![Gitter](https://img.shields.io/gitter/room/pattern-lab/php.svg)](https://gitter.im/pattern-lab/php)
-
 # Tab Plugin for Pattern Lab Node
+
+> This StyleguideKit is for Pattern Lab 2 and includes some upgrades that are not found in the original [pattern-lab/plugin-node-tab](https://github.com/pattern-lab/plugin-node-tab) repo. Use this package with [laurenhamel/styleguidekit-assets-default](https://github.com/laurenhamel/styleguidekit-assets-default) for improved code snippet highlighting.
 
 The Tab Plugin allows Pattern Lab Node users to see sibling files next to a pattern in the filesystem, displaying them as additional tabs alongside the template and HTML tabs in both the Style Guide frontend and the single-pattern info modal.
 
@@ -12,7 +10,7 @@ The Tab Plugin allows Pattern Lab Node users to see sibling files next to a patt
 
 To add the Tab Plugin to your project using [npm](http://npmjs.com/) type:
 
-    npm install plugin-node-tab --save
+    npm install laurenhamel/plugin-node-tab --save
 
 Or add it directly to your project's `package.json` file and run `npm install`
 
