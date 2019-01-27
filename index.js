@@ -32,6 +32,21 @@ function onPatternIterate( patternlab, pattern ) {
   tab_loader(patternlab, pattern);
 
 }
+function loadPrismLanguage( lang ) {
+
+  // Initialize language.
+  let language = null;
+
+  // Find language files.
+  const langFiles = glob.sync(path.join(path.dirname(require.resolve('prismjs')), `components/prism-${lang}.min.js`));
+
+  // Load the language file.
+  if( langFiles.length > 0 ) language = fs.readFileSync(langFiles[0], 'utf8');
+
+  // Return.
+  return language;
+
+}
 
 /**
  * Define what events you wish to listen to here
@@ -142,6 +157,9 @@ function pluginInit( patternlab ) {
         // Initialize an empty string of parsed JS snippets.
         let snippetString = '';
 
+        // Initialize an empty object for loading languages.
+        let prismLanguages = {};
+
         // Make sure some tabs should be parsed.
         if( pluginConfig.tabsToAdd && pluginConfig.tabsToAdd.length > 0 ) {
 
@@ -154,10 +172,16 @@ function pluginInit( patternlab ) {
             // Save the snippet.
             snippetString += tabSnippetLocal + EOL;
 
+            // Find the language.
+            let tabLanguageLocal = loadPrismLanguage(lang);
+
+            // Save the language.
+            if( !prismLanguages[lang] && tabLanguageLocal ) prismLanguages[lang] = tabLanguageLocal;
+
           });
 
           // Generate the output file.
-          tabJSFileContents = tabJSFileContents.replace('/*SNIPPETS*/', snippetString);
+          tabJSFileContents = tabJSFileContents.replace('/*SNIPPETS*/', snippetString).replace('/*LANGUAGES*/', Object.values(prismLanguages).join(EOL));
 
           // Save the output file for use in the browser.
           fs.outputFileSync(writePath, tabJSFileContents);

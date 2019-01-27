@@ -5,9 +5,12 @@ var PluginTab = {
    */
   init: function () {
 
-    //placeholder that will be replaced during configuation
-    //most plugins could probably just implement logic here instead.
+    // Placeholders that will be replaced during configuation.
+    // Most plugins could probably just implement logic here instead.
+
     /*SNIPPETS*/
+
+    /*LANGUAGES*/
 
   }
 };
