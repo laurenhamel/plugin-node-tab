@@ -47,6 +47,21 @@ function loadPrismLanguage( lang ) {
   return language;
 
 }
+function loadPrismComponent( name ) {
+
+  // Initialize component.
+  let component = null;
+
+  // Find component file.
+  const componentFile = glob.sync(path.join(path.dirname(require.resolve('prismjs')), `components/prism-${name}.min.js`));
+
+  // Load the component file.
+  if( componentFile.length > 0 ) component = fs.readFileSync(componentFile[0], 'utf8');
+
+  // Return.
+  return component;
+
+}
 
 /**
  * Define what events you wish to listen to here
@@ -129,6 +144,11 @@ function pluginInit( patternlab ) {
   // Find plugin files.
   var pluginFiles = glob.sync(path.join(__dirname, '/dist/**/*'));
 
+  // Identity component files.
+  var componentFiles = [
+    'markup-templating'
+  ];
+
   // Load the plugin.
   if( pluginFiles && pluginFiles.length > 0 ) {
 
@@ -160,6 +180,9 @@ function pluginInit( patternlab ) {
         // Initialize an empty object for loading languages.
         let prismLanguages = {};
 
+        // Initialize an empty array for loading components.
+        let prismComponents = [];
+
         // Make sure some tabs should be parsed.
         if( pluginConfig.tabsToAdd && pluginConfig.tabsToAdd.length > 0 ) {
 
@@ -180,8 +203,19 @@ function pluginInit( patternlab ) {
 
           });
 
+          // Load each component file.
+          componentFiles.forEach((componentFile) => {
+
+            // Attempt to load the component file.
+            const component = loadPrismComponent(componentFile);
+
+            // Generate the output file.
+            if( component ) prismComponents.push(component);
+
+          });
+
           // Generate the output file.
-          tabJSFileContents = tabJSFileContents.replace('/*SNIPPETS*/', snippetString).replace('/*LANGUAGES*/', Object.values(prismLanguages).join(EOL));
+          tabJSFileContents = tabJSFileContents.replace('/*SNIPPETS*/', snippetString).replace('/*LANGUAGES*/', Object.values(prismLanguages).join(EOL)).replace('/*COMPONENTS*/', prismComponents.join('\n'));
 
           // Save the output file for use in the browser.
           fs.outputFileSync(writePath, tabJSFileContents);

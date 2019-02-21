@@ -10,6 +10,8 @@ var PluginTab = {
 
     /*SNIPPETS*/
 
+    /*COMPONENTS*/
+
     /*LANGUAGES*/
 
   }
